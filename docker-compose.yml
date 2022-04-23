@@ -2,23 +2,25 @@ version: "3.3"
 services:
   redis:
     image: redis
-  mongodb:
+  mongo:
     image: mongo
+    restart: always
     environment:
-      - ES_HEAP_SIZE=2g
-      - MAX_MAP_COUNT=262144
-      - ELASTICSEARCH_START=1
-      - LOGSTASH_START=0
-      - KIBANA_START=0
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
     ports:
-      - "5601:5601"
-      - "9200:9200"
-      - "5044:5044"
-      - "4718:4718"
-    deploy:
-      resources:
-        limits:
-          memory: 4g
+      - "27017:27017"
+  mongo-express:
+    image: mongo-express
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
   mariadb:
     image: mariadb/server:10.5
     restart: always
