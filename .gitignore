@@ -1,5 +1,6 @@
 build
 .gradle
-data/*
 !data/.keep
+!data/mongodb/.keep
+data/*
 .idea
