@@ -8,3 +8,6 @@ db.createUser({
         {role: "readWrite", db: "replicator"}
     ]
 })
+
+var res = rs.initiate()
+printjson(res)

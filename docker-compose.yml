@@ -7,6 +7,7 @@ services:
   mongo:
     image: mongo
     restart: always
+    command: --replSet rs1 --keyFile /docker-entrypoint-initdb.d/.keyfile
     volumes:
       - ./init/mongodb:/docker-entrypoint-initdb.d
       - ./data/mongodb:/data/db
