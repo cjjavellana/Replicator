@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.8"
 services:
   redis:
     image: redis
@@ -7,7 +7,7 @@ services:
   mongo:
     image: mongo
     restart: always
-    command: --replSet rs1 --keyFile /docker-entrypoint-initdb.d/.keyfile
+    command: --bind_ip_all --replSet rs1 --keyFile /docker-entrypoint-initdb.d/.keyfile
     volumes:
       - ./init/mongodb:/docker-entrypoint-initdb.d
       - ./data/mongodb:/data/db
@@ -16,17 +16,23 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
       - "27017:27017"
+  mongo-setup:
+    image: mongo
+    restart: "no"
+    entrypoint: [ "bash", "-c", "sleep 15 && mongo --host mongo:27017 --username root --password example --eval 'rs.initiate()'"]
+    depends_on:
+      - mongo
   mongo-express:
     image: mongo-express
     restart: always
     depends_on:
-      - mongo
+      - mongo-setup
     ports:
       - 8081:8081
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/?replicaSet=rs1
   mariadb:
     image: mariadb/server:10.5
     restart: always
