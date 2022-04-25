@@ -1,0 +1,50 @@
+application:
+  # This is the database that `Replicator` writes the data it indexed to.
+  db:
+    conn-string: mongodb://localhost:27017/replicator
+    user: replicator
+    password: replicator
+    auth-database: replicator
+    database: replicator
+    writeConcern: MAJORITY
+    readConcern: MAJORITY
+    retryWrites: true
+  cdc:
+    engines:
+      - name: mariadb-1
+        # Offset Storage Configuration
+        "[offset.storage]": io.debezium.server.redis.RedisOffsetBackingStore
+        "[offset.storage.redis.address]": redis://127.0.0.1:6379/0
+        "[offset.storage.redis.ssl.enabled]": false
+        "[offset.storage.redis.user]":
+        "[offset.storage.redis.password]":
+        "[offset.storage.redis.key]": mariadb-1
+        # Source DB Configuration
+        "[database.hostname]": localhost
+        "[database.port]": 3306
+        "[database.user]": root
+        "[database.password]": root
+      - name: mongodb-db1
+        "[offset.storage]": io.debezium.server.redis.RedisOffsetBackingStore
+        "[offset.storage.redis.address]": redis://127.0.0.1:6379/0
+        "[offset.storage.redis.ssl.enabled]": false
+        "[offset.storage.redis.user]":
+        "[offset.storage.redis.password]":
+        "[offset.storage.redis.key]": mongodb-1
+        # Source DB Configuration
+        "[connector.class]" : "io.debezium.connector.mongodb.MongoDbConnector"
+        "[tasks.max]": "1"
+        "[mongodb.hosts]": "rs1/localhost:27017"
+        "[mongodb.name]": "inventory"
+        "[mongodb.user]": "inventory"
+        "[mongodb.password]": "inventory"
+        "[database.include.list]": "products,items"
+management:
+  health:
+    defaults:
+      enabled: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
